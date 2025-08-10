@@ -2,43 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-/* MediQuest自定义样式 */
+/* 导入Inter字体 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* 自定义CSS变量 */
+:root {
+  --gradient-bg: linear-gradient(180deg, #f0f4f8 0%, #d8e6f3 100%);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --primary-blue: #6366f1;
+  --primary-purple: #8b5cf6;
+  --accent-pink: #f472b6;
+  --accent-orange: #fb923c;
+  --success-green: #10b981;
+}
+
 @layer base {
   body {
-    font-family: 'Source Han Sans', sans-serif;
+    font-family: 'Inter', 'Source Han Sans', sans-serif;
+    background: var(--gradient-bg);
+    min-height: 100vh;
   }
 }
 
 @layer components {
-  /* 医疗主题按钮 */
+  /* 现代化按钮样式 */
+  .btn-primary {
+    @apply bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-blue-300 transition-all duration-300;
+  }
+  
+  /* 现代化卡片样式 */
+  .card-modern {
+    @apply bg-white rounded-2xl p-6 shadow-lg border-0 backdrop-blur-sm;
+    box-shadow: var(--card-shadow);
+  }
+  
+  /* 状态指示器 */
+  .status-indicator {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  /* 渐变文字 */
+  .text-gradient {
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
+  }
+
+  /* 原有样式保持兼容 */
   .btn-medical {
-    @apply bg-medical-blue text-white px-6 py-3 rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200;
+    @apply bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200;
   }
-  
+
   .btn-tech {
-    @apply bg-tech-purple text-white px-6 py-3 rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200;
+    @apply bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105;
   }
-  
-  /* 卡片样式 */
+
   .card-medical {
-    @apply bg-white rounded-xl shadow-lg p-6 border border-gray-100;
+    @apply bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300;
   }
-  
-  /* 老人模式大字体 */
-  .elder-mode {
-    @apply text-xl;
-  }
-  
-  .elder-mode h1 {
-    @apply text-3xl;
-  }
-  
-  .elder-mode h2 {
-    @apply text-2xl;
-  }
-  
-  .elder-mode .btn-medical,
-  .elder-mode .btn-tech {
-    @apply text-xl px-8 py-4;
-  }
+}
+
+/* 老年模式字体大小调整 */
+.elderly-mode {
+  font-size: 1.2em;
+}
+
+.elderly-mode h1 {
+  font-size: 2.5em;
+}
+
+.elderly-mode h2 {
+  font-size: 2em;
+}
+
+.elderly-mode .btn {
+  font-size: 1.3em;
+  padding: 1rem 2rem;
+}
+
+/* 老人模式大字体 */
+.elder-mode {
+  @apply text-xl;
+}
+
+.elder-mode h1 {
+  @apply text-3xl;
+}
+
+.elder-mode h2 {
+  @apply text-2xl;
+}
+
+.elder-mode .btn-medical,
+.elder-mode .btn-tech {
+  @apply text-xl px-8 py-4;
 }

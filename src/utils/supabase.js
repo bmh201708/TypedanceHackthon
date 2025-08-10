@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Supabase配置
-const supabaseUrl = 'https://ixqhqjqjqjqjqjqjqjqj.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4cWhxanFqcWpxanFqcWpxanFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MDA5MjQsImV4cCI6MjA3MDM3NjkyNH0.demo_anon_key_for_mediquest'
+const supabaseUrl = 'https://ntectzhxtgdxdmasvgku.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50ZWN0emh4dGdkeGRtYXN2Z2t1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MDAwOTEsImV4cCI6MjA3MDM3NjA5MX0.DQY9wATs1509AfEamFOftu33dVXbWtziZWkOuZ1KV5I'
 
 // 创建Supabase客户端
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

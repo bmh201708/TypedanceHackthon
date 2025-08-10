@@ -41,7 +41,7 @@ const routes = [
     path: '/game',
     name: 'Game',
     component: Game,
-    meta: { requiresAuth: true, roles: ['patient'] }
+    meta: { requiresAuth: true }
   },
   {
     path: '/health',

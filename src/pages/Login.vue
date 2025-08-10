@@ -101,17 +101,23 @@
         </div>
       </el-form>
 
-      <!-- 快速登录（演示用） -->
+      <!-- 演示模式登录 -->
       <div class="mt-8 pt-6 border-t border-gray-200">
-        <p class="text-center text-sm text-gray-500 mb-4">演示账号快速登录</p>
-        <div class="grid grid-cols-2 gap-2">
-          <el-button size="small" @click="quickLogin('patient')">
-            患者演示
+        <p class="text-center text-sm text-gray-500 mb-4">演示模式（无需注册）</p>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <el-button size="small" type="success" @click="demoLogin('patient')">
+            👤 患者演示
           </el-button>
-          <el-button size="small" @click="quickLogin('doctor')">
-            医生演示
+          <el-button size="small" type="warning" @click="demoLogin('doctor')">
+            👨‍⚕️ 医生演示
           </el-button>
         </div>
+        <div class="grid grid-cols-1 gap-2">
+          <el-button size="small" type="info" @click="demoLogin('family')">
+            👨‍👩‍👧‍👦 家属演示
+          </el-button>
+        </div>
+        <p class="text-center text-xs text-gray-400 mt-2">演示模式可体验所有功能，数据仅供演示</p>
       </div>
     </div>
   </div>
@@ -191,15 +197,15 @@ const handleLogin = async () => {
   }
 }
 
-// 快速登录（演示用）
-const quickLogin = async (userType) => {
+// 演示模式登录
+const demoLogin = async (userType) => {
   try {
     authStore.clearError()
     
-    const result = await authStore.quickLogin(userType)
+    const result = await authStore.demoLogin(userType)
     
     if (result.success) {
-      ElMessage.success(`${userTypes.find(t => t.value === userType)?.label}演示账号登录成功！`)
+      ElMessage.success(`${userTypes.find(t => t.value === userType)?.label}演示模式登录成功！`)
       
       // 根据用户类型跳转到不同页面
       const routeMap = {
@@ -211,10 +217,10 @@ const quickLogin = async (userType) => {
       
       router.push(routeMap[result.user.user_type] || '/')
     } else {
-      ElMessage.error(result.error || '快速登录失败')
+      ElMessage.error(result.error || '演示模式登录失败')
     }
   } catch (error) {
-    ElMessage.error('快速登录失败，请重试')
+    ElMessage.error('演示模式登录失败，请重试')
   }
 }
 

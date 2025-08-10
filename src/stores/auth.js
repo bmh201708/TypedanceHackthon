@@ -146,41 +146,79 @@ export const useAuthStore = () => ({
 
   // 用户登出
   signOut: async () => {
+    console.log('signOut开始，当前状态:', {
+      user: authState.user,
+      isAuthenticated: authState.isAuthenticated
+    })
+    
     authState.isLoading = true
-    saveState()
     
     try {
-      const { error } = await auth.signOut()
-      
-      if (error) {
-        throw new Error(error.message)
+      // 尝试从Supabase登出
+      try {
+        await auth.signOut()
+        console.log('Supabase登出成功')
+      } catch (supabaseError) {
+        // 如果Supabase登出失败（比如网络问题），继续执行本地登出
+        console.warn('Supabase登出失败，执行本地登出:', supabaseError.message)
       }
 
+      // 强制清除所有认证状态
       authState.user = null
       authState.isAuthenticated = false
       authState.isLoading = false
       authState.error = null
-      saveState()
-
+      
+      console.log('状态清除后:', {
+        user: authState.user,
+        isAuthenticated: authState.isAuthenticated
+      })
+      
+      // 清除localStorage中的所有认证相关数据
+      localStorage.removeItem('auth-storage')
+      localStorage.removeItem('supabase.auth.token')
+      localStorage.clear() // 清除所有本地存储，确保演示模式状态也被清除
+      
+      console.log('localStorage已清除')
+      
       return { success: true }
     } catch (error) {
+      console.error('signOut异常:', error)
+      // 即使出错也要清除本地状态
+      authState.user = null
+      authState.isAuthenticated = false
       authState.isLoading = false
-      authState.error = error.message || '登出失败'
-      saveState()
-      return { success: false, error: error.message }
+      authState.error = null
+      localStorage.clear() // 清除所有本地存储
+      
+      return { success: true } // 返回成功，因为本地状态已清除
     }
   },
 
   // 检查认证状态
   checkAuth: async () => {
     authState.isLoading = true
-    saveState()
     
     try {
+      // 检查是否有本地保存的用户信息
+      if (authState.user && authState.isAuthenticated) {
+        authState.isLoading = false
+        return { user: authState.user, isAuthenticated: true }
+      }
+      
+      // 尝试从Supabase获取用户信息
       const { user, error } = await auth.getCurrentUser()
       
-      if (error && error.message !== 'User not found') {
-        throw new Error(error.message)
+      if (error) {
+        console.warn('Supabase认证检查失败:', error.message)
+        // 不自动启用演示模式，返回未认证状态
+        authState.user = null
+        authState.isAuthenticated = false
+        authState.isLoading = false
+        authState.error = null
+        saveState()
+        
+        return { user: null, isAuthenticated: false }
       }
 
       authState.user = user
@@ -191,12 +229,72 @@ export const useAuthStore = () => ({
 
       return { user, isAuthenticated: !!user }
     } catch (error) {
+      console.warn('认证检查失败:', error.message)
+      // 不自动启用演示模式，返回未认证状态
       authState.user = null
       authState.isAuthenticated = false
       authState.isLoading = false
-      authState.error = error.message
+      authState.error = null
       saveState()
+      
       return { user: null, isAuthenticated: false }
+    }
+  },
+
+  // 演示模式登录
+  demoLogin: async (userType = 'patient') => {
+    authState.isLoading = true
+    authState.error = null
+    saveState()
+    
+    try {
+      const demoUsers = {
+        patient: {
+          id: 'demo-patient-id',
+          email: 'demo-patient@mediquest.com',
+          real_name: '演示患者',
+          user_type: 'patient',
+          phone: '138****8888',
+          created_at: new Date().toISOString()
+        },
+        doctor: {
+          id: 'demo-doctor-id',
+          email: 'demo-doctor@mediquest.com',
+          real_name: '演示医生',
+          user_type: 'doctor',
+          phone: '139****9999',
+          created_at: new Date().toISOString()
+        },
+        family: {
+          id: 'demo-family-id',
+          email: 'demo-family@mediquest.com',
+          real_name: '演示家属',
+          user_type: 'family',
+          phone: '137****7777',
+          created_at: new Date().toISOString()
+        }
+      }
+
+      const demoUser = demoUsers[userType]
+      if (!demoUser) {
+        authState.isLoading = false
+        authState.error = '无效的用户类型'
+        saveState()
+        return { success: false, error: '无效的用户类型' }
+      }
+
+      authState.user = demoUser
+      authState.isAuthenticated = true
+      authState.isLoading = false
+      authState.error = null
+      saveState()
+
+      return { success: true, user: demoUser }
+    } catch (error) {
+      authState.isLoading = false
+      authState.error = error.message || '演示登录失败'
+      saveState()
+      return { success: false, error: error.message }
     }
   },
 

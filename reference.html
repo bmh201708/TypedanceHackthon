@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f0f4f8 0%, #d8e6f3 100%);
+        }
+        .card-glow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <!-- Status Bar -->
+    <div class="flex justify-between items-center mb-6 text-sm">
+        <span class="font-semibold">9:41</span>
+        <div class="flex space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8m-8 5h8m-8 5h8" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h18M3 8h18M3 12h18M3 16h18M3 20h18" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <button class="rounded-full p-2 bg-white shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+        <div class="text-center">
+            <h1 class="text-2xl font-bold">Mental Health</h1>
+            <p class="text-gray-500 text-sm">Improve your mental health</p>
+        </div>
+        <button class="rounded-full p-2 bg-white shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Cards -->
+    <div class="space-y-4">
+        <!-- Anxiety Card -->
+        <div class="bg-white rounded-2xl p-4 card-glow">
+            <div class="flex justify-between">
+                <div>
+                    <div class="flex items-center space-x-2 mb-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                        </svg>
+                        <h2 class="font-bold text-lg">Anxiety</h2>
+                    </div>
+                    <p class="text-gray-400 text-xs mb-2">May 2025</p>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-3xl font-bold">70%</span>
+                        <span class="bg-white rounded-lg p-1 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </div>
+                    <p class="text-gray-400 text-xs">Change increase</p>
+                </div>
+                <div class="w-28 h-16 flex items-end">
+                    <div class="h-[20%] w-3 bg-blue-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[35%] w-3 bg-blue-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[50%] w-3 bg-blue-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[40%] w-3 bg-blue-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[70%] w-3 bg-blue-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[60%] w-3 bg-blue-300 rounded-t-sm mx-0.5"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panic Attack Card -->
+        <div class="bg-white rounded-2xl p-4 card-glow">
+            <div class="flex justify-between">
+                <div>
+                    <div class="flex items-center space-x-2 mb-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                        </svg>
+                        <h2 class="font-bold text-lg">Panic attack</h2>
+                    </div>
+                    <p class="text-gray-400 text-xs mb-2">May 2025</p>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-3xl font-bold">40%</span>
+                        <span class="bg-white rounded-lg p-1 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </div>
+                    <p class="text-gray-400 text-xs">Change increase</p>
+                </div>
+                <div class="w-28 h-16 flex items-end">
+                    <div class="h-[15%] w-3 bg-red-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[25%] w-3 bg-red-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[40%] w-3 bg-red-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[30%] w-3 bg-red-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[20%] w-3 bg-red-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[35%] w-3 bg-red-300 rounded-t-sm mx-0.5"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Uneasy Sleeping Card -->
+        <div class="bg-white rounded-2xl p-4 card-glow">
+            <div class="flex justify-between">
+                <div>
+                    <div class="flex items-center space-x-2 mb-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                        </svg>
+                        <h2 class="font-bold text-lg">Uneasy sleeping</h2>
+                    </div>
+                    <p class="text-gray-400 text-xs mb-2">May 2025</p>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-3xl font-bold">20%</span>
+                        <span class="bg-white rounded-lg p-1 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </div>
+                    <p class="text-gray-400 text-xs">Change increase</p>
+                </div>
+                <div class="w-28 h-16 flex items-end">
+                    <div class="h-[10%] w-3 bg-purple-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[20%] w-3 bg-purple-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[15%] w-3 bg-purple-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[25%] w-3 bg-purple-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[20%] w-3 bg-purple-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[30%] w-3 bg-purple-300 rounded-t-sm mx-0.5"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Depression Card -->
+        <div class="bg-white rounded-2xl p-4 card-glow">
+            <div class="flex justify-between">
+                <div>
+                    <div class="flex items-center space-x-2 mb-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                        </svg>
+                        <h2 class="font-bold text-lg">Depression</h2>
+                    </div>
+                    <p class="text-gray-400 text-xs mb-2">May 2025</p>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-3xl font-bold">15%</span>
+                        <span class="bg-white rounded-lg p-1 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </div>
+                    <p class="text-gray-400 text-xs">Change increase</p>
+                </div>
+                <div class="w-28 h-16 flex items-end">
+                    <div class="h-[5%] w-3 bg-gray-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[15%] w-3 bg-gray-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[10%] w-3 bg-gray-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[20%] w-3 bg-gray-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[15%] w-3 bg-gray-300 rounded-t-sm mx-0.5"></div>
+                    <div class="h-[25%] w-3 bg-gray-300 rounded-t-sm mx-0.5"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
