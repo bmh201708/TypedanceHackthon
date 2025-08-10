@@ -1,5 +1,7 @@
 <template>
   <div class="home-container">
+    <!-- 加载状态 -->
+    <LoadingSpinner :show="isLoading" text="正在加载数据..." />
     <!-- 顶部导航 -->
     <header class="bg-medical-blue text-white p-4">
       <div class="flex justify-between items-center">
@@ -144,156 +146,194 @@
     </main>
 
     <!-- 底部导航 -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-      <div class="flex justify-around py-2">
-        <router-link to="/" class="flex flex-col items-center p-2 text-medical-blue">
-          <span class="text-xl mb-1">🏠</span>
-          <span class="text-xs">首页</span>
-        </router-link>
-        <router-link to="/medication" class="flex flex-col items-center p-2 text-gray-500">
-          <span class="text-xl mb-1">💊</span>
-          <span class="text-xs">用药</span>
-        </router-link>
-        <router-link to="/game" class="flex flex-col items-center p-2 text-gray-500">
-          <span class="text-xl mb-1">🎮</span>
-          <span class="text-xs">游戏</span>
-        </router-link>
-        <router-link to="/health-data" class="flex flex-col items-center p-2 text-gray-500">
-          <span class="text-xl mb-1">📊</span>
-          <span class="text-xs">数据</span>
-        </router-link>
-        <router-link to="/profile" class="flex flex-col items-center p-2 text-gray-500">
-          <span class="text-xl mb-1">👤</span>
-          <span class="text-xs">我的</span>
-        </router-link>
-      </div>
-    </nav>
+    <BottomNavigation />
   </div>
 </template>
 
-<script>
-import { ref, computed, onMounted } from 'vue'
+<script setup>
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useAuthStore } from '../stores/auth'
+import { database } from '../utils/supabase'
+import BottomNavigation from '../components/BottomNavigation.vue'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
 
-export default {
-  name: 'Home',
-  setup() {
-    // 响应式数据
-    const petStatus = ref({
-      level: 5,
-      health: 85,
-      energy: 70,
-      experience: 320
-    })
-    
-    const todayMedications = ref([
-      {
-        id: 1,
-        name: '阿莫西林胶囊',
-        dosage: '500mg',
-        timing: '餐后服用',
-        scheduledTime: '2024-01-15T08:00:00',
-        status: 'taken'
-      },
-      {
-        id: 2,
-        name: '维生素C片',
-        dosage: '100mg',
-        timing: '餐后服用',
-        scheduledTime: '2024-01-15T12:00:00',
-        status: 'pending'
-      },
-      {
-        id: 3,
-        name: '钙片',
-        dosage: '600mg',
-        timing: '睡前服用',
-        scheduledTime: '2024-01-15T21:00:00',
-        status: 'pending'
-      }
+const router = useRouter()
+const authStore = useAuthStore()
+
+// 响应式数据
+const isLoading = ref(true)
+const petStatus = ref(null)
+const todayMedications = ref([])
+const userAvatar = ref('https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png')
+const adherenceRate = ref(0)
+const recoveryDays = ref(0)
+
+// 计算属性
+const user = computed(() => authStore.user)
+
+const nextLevelExp = computed(() => {
+  return petStatus.value ? petStatus.value.level * 100 : 100
+})
+
+const pendingMedications = computed(() => {
+  return todayMedications.value.filter(med => med.status === 'pending').length
+})
+
+const completionRate = computed(() => {
+  const total = todayMedications.value.length
+  if (total === 0) return 100
+  const completed = todayMedications.value.filter(med => med.status === 'taken').length
+  return Math.round((completed / total) * 100)
+})
+
+// 方法
+const loadData = async () => {
+  if (!user.value) {
+    router.push('/login')
+    return
+  }
+
+  try {
+    isLoading.value = true
+
+    // 并行加载数据
+    const [petResult, tasksResult] = await Promise.all([
+      database.getPetStatus(user.value.id),
+      database.getTodayMedicationTasks(user.value.id)
     ])
-    
-    const userAvatar = ref('https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png')
-    const adherenceRate = ref(78)
-    const recoveryDays = ref(45)
-    
-    // 计算属性
-    const nextLevelExp = computed(() => petStatus.value.level * 100)
-    
-    const pendingMedications = computed(() => {
-      return todayMedications.value.filter(med => med.status === 'pending').length
-    })
-    
-    const completionRate = computed(() => {
-      const total = todayMedications.value.length
-      if (total === 0) return 100
-      const completed = todayMedications.value.filter(med => med.status === 'taken').length
-      return Math.round((completed / total) * 100)
-    })
-    
-    // 方法
-    const formatTime = (timeString) => {
-      const date = new Date(timeString)
-      return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-    }
-    
-    const getStatusType = (status) => {
-      const statusMap = {
-        'taken': 'success',
-        'pending': 'warning',
-        'missed': 'danger'
+
+    if (petResult.data) {
+      petStatus.value = petResult.data
+    } else {
+      // 如果没有宠物状态，创建默认状态
+      const defaultPetStatus = {
+        user_id: user.value.id,
+        level: 1,
+        health: 100,
+        energy: 100,
+        experience: 0,
+        last_fed: new Date().toISOString(),
+        created_at: new Date().toISOString()
       }
-      return statusMap[status] || 'info'
-    }
-    
-    const getStatusText = (status) => {
-      const statusMap = {
-        'taken': '已服用',
-        'pending': '待服用',
-        'missed': '已错过'
+      
+      const createResult = await database.updatePetStatus(user.value.id, defaultPetStatus)
+      if (createResult.data) {
+        petStatus.value = createResult.data
       }
-      return statusMap[status] || '未知'
     }
+
+    if (tasksResult.data) {
+      todayMedications.value = tasksResult.data
+    }
+
+    // 计算健康进度
+    adherenceRate.value = completionRate.value
+    recoveryDays.value = calculateRecoveryDays()
+
+  } catch (error) {
+    console.error('加载数据失败:', error)
+    ElMessage.error('加载数据失败，请刷新重试')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const calculateRecoveryDays = () => {
+  if (!user.value?.created_at) return 0
+  const createdDate = new Date(user.value.created_at)
+  const today = new Date()
+  const diffTime = Math.abs(today - createdDate)
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+}
+
+const formatTime = (timeString) => {
+  const date = new Date(timeString)
+  return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+}
+
+const getStatusType = (status) => {
+  const statusMap = {
+    'taken': 'success',
+    'pending': 'warning',
+    'missed': 'danger'
+  }
+  return statusMap[status] || 'info'
+}
+
+const getStatusText = (status) => {
+  const statusMap = {
+    'taken': '已服用',
+    'pending': '待服用',
+    'missed': '已错过'
+  }
+  return statusMap[status] || '未知'
+}
+
+const takeMedication = async (medication) => {
+  try {
+    const result = await database.confirmMedication(medication.id, 'manual')
     
-    const takeMedication = (medication) => {
+    if (result.data) {
+      // 更新本地状态
       medication.status = 'taken'
       medication.actualTime = new Date().toISOString()
       
-      // 增加宠物能量
-      petStatus.value.energy = Math.min(100, petStatus.value.energy + 10)
-      petStatus.value.experience += 20
+      ElMessage.success('服药成功！小药丸获得了能量！')
       
-      // 检查是否升级
-      if (petStatus.value.experience >= nextLevelExp.value) {
-        petStatus.value.level += 1
-        petStatus.value.experience = 0
-        ElMessage.success(`恭喜！小药丸升级到 ${petStatus.value.level} 级！`)
-      } else {
-        ElMessage.success('服药成功！小药丸获得了能量！')
-      }
+      // 更新宠物状态
+      await updatePetStatus()
+      
+    } else {
+      throw new Error(result.error?.message || '确认失败')
     }
-    
-    onMounted(() => {
-      // 页面加载时的初始化逻辑
-      console.log('首页加载完成')
-    })
-    
-    return {
-      petStatus,
-      todayMedications,
-      userAvatar,
-      adherenceRate,
-      recoveryDays,
-      nextLevelExp,
-      pendingMedications,
-      completionRate,
-      formatTime,
-      getStatusType,
-      getStatusText,
-      takeMedication
-    }
+  } catch (error) {
+    console.error('确认用药失败:', error)
+    ElMessage.error('确认用药失败，请重试')
   }
 }
+
+const updatePetStatus = async () => {
+  if (!petStatus.value) return
+  
+  try {
+    const updates = {
+      experience: petStatus.value.experience + 20,
+      health: Math.min(100, petStatus.value.health + 5),
+      energy: Math.min(100, petStatus.value.energy + 10)
+    }
+    
+    // 检查是否升级
+    const nextExp = petStatus.value.level * 100
+    if (updates.experience >= nextExp) {
+      updates.level = petStatus.value.level + 1
+      updates.experience = updates.experience - nextExp
+      ElMessage.success(`恭喜！小药丸升级到 ${updates.level} 级！`)
+    }
+    
+    const result = await database.updatePetStatus(user.value.id, updates)
+    
+    if (result.data) {
+      petStatus.value = result.data
+    }
+  } catch (error) {
+    console.error('更新宠物状态失败:', error)
+  }
+}
+
+onMounted(async () => {
+  // 检查认证状态
+  if (!authStore.isAuthenticated) {
+    await authStore.checkAuth()
+  }
+  
+  if (authStore.isAuthenticated) {
+    await loadData()
+  } else {
+    router.push('/login')
+  }
+})
 </script>
 
 <style scoped>

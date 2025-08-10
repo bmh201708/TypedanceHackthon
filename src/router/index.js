@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 
 // 页面组件
 import Home from '../pages/Home.vue'
@@ -21,24 +22,38 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: Login
+    component: Login,
+    meta: { requiresAuth: false }
   },
   {
     path: '/register',
     name: 'Register',
-    component: Register
+    component: Register,
+    meta: { requiresAuth: false }
   },
   {
     path: '/medication',
     name: 'Medication',
     component: Medication,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['patient'] }
   },
   {
     path: '/game',
     name: 'Game',
     component: Game,
+    meta: { requiresAuth: true, roles: ['patient'] }
+  },
+  {
+    path: '/health',
+    name: 'Health',
+    component: () => import('@/pages/Health.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/doctor',
+    name: 'Doctor',
+    component: () => import('@/pages/Doctor.vue'),
+    meta: { requiresAuth: true, requiresRole: 'doctor' }
   },
   {
     path: '/health-data',
@@ -50,7 +65,7 @@ const routes = [
     path: '/doctor-dashboard',
     name: 'DoctorDashboard',
     component: DoctorDashboard,
-    meta: { requiresAuth: true, requiresRole: 'doctor' }
+    meta: { requiresAuth: true, roles: ['doctor'] }
   },
   {
     path: '/profile',
@@ -62,7 +77,7 @@ const routes = [
     path: '/family',
     name: 'Family',
     component: Family,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, roles: ['family', 'patient'] }
   }
 ]
 
@@ -72,17 +87,50 @@ const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('token')
-  const userRole = localStorage.getItem('userRole')
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
   
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login')
-  } else if (to.meta.requiresRole && userRole !== to.meta.requiresRole) {
-    next('/')
+  // 如果需要认证
+  if (to.meta.requiresAuth) {
+    // 检查是否已登录
+    if (!authStore.isAuthenticated) {
+      // 尝试从本地存储恢复认证状态
+      await authStore.checkAuth()
+    }
+    
+    // 如果仍未登录，重定向到登录页
+    if (!authStore.isAuthenticated) {
+      next('/login')
+      return
+    }
+    
+    // 检查角色权限
+    if (to.meta.roles && authStore.user) {
+      const userRole = authStore.user.user_type
+      if (!to.meta.roles.includes(userRole)) {
+        // 权限不足，重定向到首页或相应页面
+        if (userRole === 'doctor') {
+          next('/doctor-dashboard')
+        } else {
+          next('/')
+        }
+        return
+      }
+    }
   } else {
-    next()
+    // 如果是登录或注册页面，但用户已登录，重定向到首页
+    if ((to.name === 'Login' || to.name === 'Register') && authStore.isAuthenticated) {
+      const userRole = authStore.user?.user_type
+      if (userRole === 'doctor') {
+        next('/doctor-dashboard')
+      } else {
+        next('/')
+      }
+      return
+    }
   }
+  
+  next()
 })
 
 export default router

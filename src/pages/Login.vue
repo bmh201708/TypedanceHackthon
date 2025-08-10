@@ -85,7 +85,7 @@
           <el-button 
             type="primary" 
             class="w-full btn-medical"
-            :loading="loading"
+            :loading="authStore.isLoading"
             @click="handleLogin"
           >
             登录
@@ -117,91 +117,113 @@
   </div>
 </template>
 
-<script>
-import { ref, reactive } from 'vue'
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { User, Lock, UserCheck, Stethoscope, Users, Pill } from 'lucide-vue-next'
+import { useAuthStore } from '../stores/auth'
 
-export default {
-  name: 'Login',
-  setup() {
-    const router = useRouter()
-    const loginFormRef = ref()
-    const loading = ref(false)
+const router = useRouter()
+const authStore = useAuthStore()
+
+// 表单数据
+const loginForm = reactive({
+  userType: 'patient',
+  email: '',
+  password: '',
+  remember: false
+})
+
+// 表单引用
+const loginFormRef = ref(null)
+
+// 表单验证规则
+const loginRules = {
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+  ]
+}
+
+// 用户类型选项
+const userTypes = [
+  { value: 'patient', label: '患者', icon: UserCheck, color: 'text-medical-blue' },
+  { value: 'doctor', label: '医生', icon: Stethoscope, color: 'text-tech-purple' },
+  { value: 'family', label: '家属', icon: Users, color: 'text-green-600' },
+  { value: 'pharmacist', label: '药师', icon: Pill, color: 'text-orange-600' }
+]
+
+// 登录处理
+const handleLogin = async () => {
+  if (!loginFormRef.value) return
+  
+  try {
+    const valid = await loginFormRef.value.validate()
+    if (!valid) return
     
-    // 表单数据
-    const loginForm = reactive({
-      userType: 'patient',
-      email: '',
-      password: '',
-      remember: false
-    })
+    authStore.clearError()
     
-    // 表单验证规则
-    const loginRules = {
-      email: [
-        { required: true, message: '请输入邮箱', trigger: 'blur' },
-        { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
-      ],
-      password: [
-        { required: true, message: '请输入密码', trigger: 'blur' },
-        { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
-      ]
-    }
+    const result = await authStore.signIn(loginForm.email, loginForm.password)
     
-    // 登录处理
-    const handleLogin = async () => {
-      if (!loginFormRef.value) return
+    if (result.success) {
+      ElMessage.success('登录成功！')
       
-      try {
-        const valid = await loginFormRef.value.validate()
-        if (!valid) return
-        
-        loading.value = true
-        
-        // 模拟登录API调用
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // 保存登录状态
-        localStorage.setItem('token', 'demo-token-' + Date.now())
-        localStorage.setItem('userRole', loginForm.userType)
-        localStorage.setItem('userEmail', loginForm.email)
-        
-        ElMessage.success('登录成功！')
-        
-        // 根据用户类型跳转到不同页面
-        if (loginForm.userType === 'doctor') {
-          router.push('/doctor-dashboard')
-        } else {
-          router.push('/')
-        }
-        
-      } catch (error) {
-        console.error('登录失败:', error)
-        ElMessage.error('登录失败，请检查账号密码')
-      } finally {
-        loading.value = false
+      // 根据用户类型跳转到不同页面
+      const routeMap = {
+        patient: '/',
+        doctor: '/doctor-dashboard',
+        family: '/family',
+        pharmacist: '/'
       }
+      
+      router.push(routeMap[result.user.user_type] || '/')
+    } else {
+      ElMessage.error(result.error || '登录失败，请重试')
     }
     
-    // 快速登录（演示用）
-    const quickLogin = (userType) => {
-      loginForm.userType = userType
-      loginForm.email = `demo-${userType}@mediquest.com`
-      loginForm.password = '123456'
-      handleLogin()
-    }
-    
-    return {
-      loginFormRef,
-      loginForm,
-      loginRules,
-      loading,
-      handleLogin,
-      quickLogin
-    }
+  } catch (error) {
+    ElMessage.error('登录失败，请重试')
   }
 }
+
+// 快速登录（演示用）
+const quickLogin = async (userType) => {
+  try {
+    authStore.clearError()
+    
+    const result = await authStore.quickLogin(userType)
+    
+    if (result.success) {
+      ElMessage.success(`${userTypes.find(t => t.value === userType)?.label}演示账号登录成功！`)
+      
+      // 根据用户类型跳转到不同页面
+      const routeMap = {
+        patient: '/',
+        doctor: '/doctor-dashboard',
+        family: '/family',
+        pharmacist: '/'
+      }
+      
+      router.push(routeMap[result.user.user_type] || '/')
+    } else {
+      ElMessage.error(result.error || '快速登录失败')
+    }
+  } catch (error) {
+    ElMessage.error('快速登录失败，请重试')
+  }
+}
+
+// 检查是否已登录
+onMounted(async () => {
+  if (authStore.isAuthenticated) {
+    router.push('/')
+  }
+})
 </script>
 
 <style scoped>

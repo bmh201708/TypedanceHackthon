@@ -146,7 +146,7 @@
           <el-button 
             type="primary" 
             class="w-full btn-medical"
-            :loading="loading"
+            :loading="authStore.isLoading"
             @click="handleRegister"
           >
             注册账号
@@ -165,130 +165,154 @@
   </div>
 </template>
 
-<script>
-import { ref, reactive, computed } from 'vue'
+<script setup>
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useAuthStore } from '../stores/auth'
 
-export default {
-  name: 'Register',
-  setup() {
-    const router = useRouter()
-    const registerFormRef = ref()
-    const loading = ref(false)
-    
-    // 表单数据
-    const registerForm = reactive({
-      userType: 'patient',
-      realName: '',
-      email: '',
-      phone: '',
-      password: '',
-      confirmPassword: '',
-      licenseNumber: '',
-      institution: '',
-      inviteCode: '',
-      agree: false
-    })
-    
-    // 确认密码验证
-    const validateConfirmPassword = (rule, value, callback) => {
-      if (value !== registerForm.password) {
-        callback(new Error('两次输入的密码不一致'))
-      } else {
-        callback()
-      }
-    }
-    
-    // 表单验证规则
-    const registerRules = computed(() => {
-      const baseRules = {
-        realName: [
-          { required: true, message: '请输入真实姓名', trigger: 'blur' },
-          { min: 2, max: 20, message: '姓名长度在2到20个字符', trigger: 'blur' }
-        ],
-        email: [
-          { required: true, message: '请输入邮箱', trigger: 'blur' },
-          { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
-        ],
-        phone: [
-          { required: true, message: '请输入手机号码', trigger: 'blur' },
-          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
-        ],
-        password: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
-        ],
-        confirmPassword: [
-          { required: true, message: '请确认密码', trigger: 'blur' },
-          { validator: validateConfirmPassword, trigger: 'blur' }
-        ],
-        agree: [
-          { 
-            validator: (rule, value, callback) => {
-              if (!value) {
-                callback(new Error('请同意用户协议和隐私政策'))
-              } else {
-                callback()
-              }
-            }, 
-            trigger: 'change' 
-          }
-        ]
-      }
-      
-      // 根据用户类型添加额外验证
-      if (registerForm.userType === 'doctor' || registerForm.userType === 'pharmacist') {
-        baseRules.licenseNumber = [
-          { required: true, message: '请输入执业证书编号', trigger: 'blur' }
-        ]
-        baseRules.institution = [
-          { required: true, message: '请输入所属医疗机构', trigger: 'blur' }
-        ]
-      }
-      
-      if (registerForm.userType === 'family') {
-        baseRules.inviteCode = [
-          { required: true, message: '请输入患者邀请码', trigger: 'blur' }
-        ]
-      }
-      
-      return baseRules
-    })
-    
-    // 注册处理
-    const handleRegister = async () => {
-      if (!registerFormRef.value) return
-      
-      try {
-        const valid = await registerFormRef.value.validate()
-        if (!valid) return
-        
-        loading.value = true
-        
-        // 模拟注册API调用
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        
-        ElMessage.success('注册成功！请登录您的账号')
-        router.push('/login')
-        
-      } catch (error) {
-        console.error('注册失败:', error)
-        ElMessage.error('注册失败，请稍后重试')
-      } finally {
-        loading.value = false
-      }
-    }
-    
-    return {
-      registerFormRef,
-      registerForm,
-      registerRules,
-      loading,
-      handleRegister
-    }
+const router = useRouter()
+const authStore = useAuthStore()
+const registerFormRef = ref()
+
+// 表单数据
+const registerForm = reactive({
+  userType: 'patient',
+  realName: '',
+  email: '',
+  phone: '',
+  password: '',
+  confirmPassword: '',
+  licenseNumber: '',
+  institution: '',
+  inviteCode: '',
+  agree: false
+})
+
+// 确认密码验证
+const validateConfirmPassword = (rule, value, callback) => {
+  if (value !== registerForm.password) {
+    callback(new Error('两次输入的密码不一致'))
+  } else {
+    callback()
   }
 }
+
+// 表单验证规则
+const registerRules = computed(() => {
+  const baseRules = {
+    realName: [
+      { required: true, message: '请输入真实姓名', trigger: 'blur' },
+      { min: 2, max: 20, message: '姓名长度在2到20个字符', trigger: 'blur' }
+    ],
+    email: [
+      { required: true, message: '请输入邮箱', trigger: 'blur' },
+      { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    ],
+    phone: [
+      { required: true, message: '请输入手机号码', trigger: 'blur' },
+      { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    ],
+    password: [
+      { required: true, message: '请输入密码', trigger: 'blur' },
+      { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    ],
+    confirmPassword: [
+      { required: true, message: '请确认密码', trigger: 'blur' },
+      { validator: validateConfirmPassword, trigger: 'blur' }
+    ],
+    agree: [
+      { 
+        validator: (rule, value, callback) => {
+          if (!value) {
+            callback(new Error('请同意用户协议和隐私政策'))
+          } else {
+            callback()
+          }
+        }, 
+        trigger: 'change' 
+      }
+    ]
+  }
+  
+  // 根据用户类型添加额外验证
+  if (registerForm.userType === 'doctor' || registerForm.userType === 'pharmacist') {
+    baseRules.licenseNumber = [
+      { required: true, message: '请输入执业证书编号', trigger: 'blur' }
+    ]
+    baseRules.institution = [
+      { required: true, message: '请输入所属医疗机构', trigger: 'blur' }
+    ]
+  }
+  
+  if (registerForm.userType === 'family') {
+    baseRules.inviteCode = [
+      { required: true, message: '请输入患者邀请码', trigger: 'blur' }
+    ]
+  }
+  
+  return baseRules
+})
+
+// 注册处理
+const handleRegister = async () => {
+  if (!registerFormRef.value) return
+  
+  try {
+    const valid = await registerFormRef.value.validate()
+    if (!valid) return
+    
+    authStore.clearError()
+    
+    // 准备注册数据
+    const registrationData = {
+      userType: registerForm.userType,
+      name: registerForm.realName,
+      email: registerForm.email,
+      phone: registerForm.phone,
+      password: registerForm.password
+    }
+    
+    // 根据用户类型添加额外信息
+    if (registerForm.userType === 'doctor' || registerForm.userType === 'pharmacist') {
+      registrationData.certification = {
+        licenseNumber: registerForm.licenseNumber,
+        institution: registerForm.institution,
+        type: registerForm.userType === 'doctor' ? 'medical_license' : 'pharmacy_license'
+      }
+    }
+    
+    if (registerForm.userType === 'family') {
+      registrationData.inviteCode = registerForm.inviteCode
+    }
+    
+    const result = await authStore.signUp(registrationData)
+    
+    if (result.success) {
+      if (result.needsVerification) {
+        ElMessage.success('注册成功！请查收邮箱验证邮件后登录')
+      } else {
+        ElMessage.success('注册成功！')
+      }
+      
+      // 跳转到登录页面
+      router.push('/login')
+    } else {
+      ElMessage.error(result.error || '注册失败，请重试')
+    }
+    
+  } catch (error) {
+    console.error('注册失败:', error)
+    ElMessage.error('注册失败，请稍后重试')
+  }
+}
+
+// 检查是否已登录
+onMounted(async () => {
+  if (authStore.isAuthenticated) {
+    router.push('/')
+  }
+})
 </script>
 
 <style scoped>
