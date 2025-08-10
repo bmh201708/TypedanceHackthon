@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* MediQuest自定义样式 */
+@layer base {
+  body {
+    font-family: 'Source Han Sans', sans-serif;
+  }
+}
+
+@layer components {
+  /* 医疗主题按钮 */
+  .btn-medical {
+    @apply bg-medical-blue text-white px-6 py-3 rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200;
+  }
+  
+  .btn-tech {
+    @apply bg-tech-purple text-white px-6 py-3 rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200;
+  }
+  
+  /* 卡片样式 */
+  .card-medical {
+    @apply bg-white rounded-xl shadow-lg p-6 border border-gray-100;
+  }
+  
+  /* 老人模式大字体 */
+  .elder-mode {
+    @apply text-xl;
+  }
+  
+  .elder-mode h1 {
+    @apply text-3xl;
+  }
+  
+  .elder-mode h2 {
+    @apply text-2xl;
+  }
+  
+  .elder-mode .btn-medical,
+  .elder-mode .btn-tech {
+    @apply text-xl px-8 py-4;
+  }
+}
