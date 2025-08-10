@@ -39,6 +39,12 @@
           </button>
         </el-badge>
         <button 
+          @click="forceLogin"
+          class="rounded-full p-3 bg-white shadow-card text-blue-500"
+        >
+          强制登录
+        </button>
+        <button 
           v-if="!isAuthenticated" 
           @click="$router.push('/login')"
           class="rounded-full p-3 bg-white shadow-card"
@@ -319,9 +325,12 @@ const updateTime = () => {
 }
 
 const loadData = async () => {
-  if (!user.value) {
-    router.push('/login')
-    return
+  if (!user.value || !user.value.id) {
+    // 如果没有有效的用户或用户ID，则不加载数据
+    isLoading.value = false;
+    // 可以选择重定向到登录页
+    // router.push('/login'); 
+    return;
   }
 
   try {
@@ -460,8 +469,8 @@ const handleLogout = async () => {
     
     if (result.success) {
       ElMessage.success('已退出登录')
-      // 强制页面重新加载以确保状态完全重置
-      window.location.reload()
+      // 使用路由导航到登录页
+      router.push('/login');
     } else {
       ElMessage.error('退出失败，请重试')
     }
@@ -469,6 +478,10 @@ const handleLogout = async () => {
     console.error('退出登录失败:', error)
     ElMessage.error('退出失败，请重试')
   }
+}
+
+const forceLogin = () => {
+  router.push('/login');
 }
 
 const handleUserAction = async (command) => {
@@ -482,23 +495,15 @@ const handleUserAction = async (command) => {
   }
 }
 
-onMounted(async () => {
+onMounted(() => {
   // 更新时间
-  updateTime()
-  setInterval(updateTime, 1000)
+  updateTime();
+  setInterval(updateTime, 1000);
   
-  // 只在页面首次加载时检查认证状态，避免在退出登录后重新认证
-  const hasLocalAuth = localStorage.getItem('auth-storage')
-  
-  if (!isAuthenticated.value && hasLocalAuth) {
-    await authStore.checkAuth()
-  }
-  
-  if (isAuthenticated.value) {
-    await loadData()
-  }
-  // 移除自动跳转到登录页的逻辑，允许用户在首页看到登录按钮
-})
+  // 加载首页所需数据
+  // 路由守卫会确保在访问此页面时，用户必然是已认证状态
+  loadData();
+});
 </script>
 
 <style scoped>

@@ -88,49 +88,41 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore()
-  
-  // 如果需要认证
+  const authStore = useAuthStore();
+
+  // If the route requires authentication
   if (to.meta.requiresAuth) {
-    // 检查是否已登录
+    // If the user is not authenticated in the store, try to check the session
     if (!authStore.isAuthenticated) {
-      // 尝试从本地存储恢复认证状态
-      await authStore.checkAuth()
+      await authStore.checkAuth();
     }
-    
-    // 如果仍未登录，重定向到登录页
+
+    // After checking, if the user is still not authenticated, redirect to login
     if (!authStore.isAuthenticated) {
-      next('/login')
-      return
+      next({ path: '/login', query: { redirect: to.fullPath } });
+      return;
     }
-    
-    // 检查角色权限
+
+    // Check for role-based authorization
     if (to.meta.roles && authStore.user) {
-      const userRole = authStore.user.user_type
+      const userRole = authStore.user.user_type;
       if (!to.meta.roles.includes(userRole)) {
-        // 权限不足，重定向到首页或相应页面
-        if (userRole === 'doctor') {
-          next('/doctor-dashboard')
-        } else {
-          next('/')
-        }
-        return
+        next(userRole === 'doctor' ? '/doctor-dashboard' : '/');
+        return;
       }
     }
   } else {
-    // 如果是登录或注册页面，但用户已登录，重定向到首页
-    if ((to.name === 'Login' || to.name === 'Register') && authStore.isAuthenticated) {
-      const userRole = authStore.user?.user_type
-      if (userRole === 'doctor') {
-        next('/doctor-dashboard')
-      } else {
-        next('/')
-      }
-      return
+    // If the route does not require auth (e.g., /login, /register)
+    // If the user is already authenticated, redirect them to the home page
+    if (authStore.isAuthenticated && (to.name === 'Login' || to.name === 'Register')) {
+      const userRole = authStore.user?.user_type;
+      next(userRole === 'doctor' ? '/doctor-dashboard' : '/');
+      return;
     }
   }
-  
-  next()
-})
+
+  // If all checks pass, proceed with the navigation
+  next();
+});
 
 export default router

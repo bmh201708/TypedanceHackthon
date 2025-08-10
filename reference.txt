@@ -1,0 +1,27 @@
+ [vue/compiler-sfc] Identifier 'router' has already been declared. (11:6)
+
+C:/Users/jimjy/Documents/GitHub/TypedanceHackthon/src/pages/Home.vue
+287|  import router from '../router' // 直接导入路由实例
+288|  
+289|  const router = useRouter()
+290|  const authStore = useAuthStore()
+291|
+C:/Users/jimjy/Documents/GitHub/TypedanceHackthon/src/pages/Home.vue:11:6
+8  |        <span class="font-semibold">{{ currentTime }}</span>
+9  |        <div class="flex space-x-2">
+10 |          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+   |                                                                                    ^
+11 |            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+12 |          </svg>
+    at constructor (C:\Users\jimjy\Documents\GitHub\TypedanceHackthon\node_modules\@babel\parser\lib\index.js:367:19)
+    at Parser.raise (C:\Users\jimjy\Documents\GitHub\TypedanceHackthon\node_modules\@babel\parser\lib\index.js:6627:19)
+    at ScopeHandler.checkRedeclarationInScope (C:\Users\jimjy\Documents\GitHub\TypedanceHackthon\node_modules\@babel\parser\lib\index.js:1644:19)
+    at ScopeHandler.declareName (C:\Users\jimjy\Documents\GitHub\TypedanceHackthon\node_modules\@babel\parser\lib\index.js:1610:12)
+    at Parser.declareNameFromIdentifier (C:\Users\jimjy\Documents\GitHub\TypedanceHackthon\node_modules\@babel\parser\lib\index.js:7591:16)
+    at Parser.checkIdentifier (C:\Users\jimjy\Documents\GitHub\TypedanceHackthon\node_modules\@babel\parser\lib\index.js:7587:12)
+    at Parser.checkLVal (C:\Users\jimjy\Documents\GitHub\TypedanceHackthon\node_modules\@babel\parser\lib\index.js:7526:12)
+    at Parser.parseVarId (C:\Users\jimjy\Documents\GitHub\TypedanceHackthon\node_modules\@babel\parser\lib\index.js:13412:10)
+    at Parser.parseVar (C:\Users\jimjy\Documents\GitHub\TypedanceHackthon\node_modules\@babel\parser\lib\index.js:13383:12)
+    at Parser.parseVarStatement (C:\Users\jimjy\Documents\GitHub\TypedanceHackthon\node_modules\@babel\parser\lib\index.js:13230:10
+Click outside, press Esc key, or fix the code to dismiss.
+You can also disable this overlay by setting server.hmr.overlay to false in vite.config.js.

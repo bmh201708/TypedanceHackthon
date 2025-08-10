@@ -144,55 +144,27 @@ export const useAuthStore = () => ({
     }
   },
 
-  // 用户登出
   signOut: async () => {
-    console.log('signOut开始，当前状态:', {
-      user: authState.user,
-      isAuthenticated: authState.isAuthenticated
-    })
-    
-    authState.isLoading = true
-    
+    authState.isLoading = true;
     try {
-      // 尝试从Supabase登出
-      try {
-        await auth.signOut()
-        console.log('Supabase登出成功')
-      } catch (supabaseError) {
-        // 如果Supabase登出失败（比如网络问题），继续执行本地登出
-        console.warn('Supabase登出失败，执行本地登出:', supabaseError.message)
-      }
-
-      // 强制清除所有认证状态
-      authState.user = null
-      authState.isAuthenticated = false
-      authState.isLoading = false
-      authState.error = null
-      
-      console.log('状态清除后:', {
-        user: authState.user,
-        isAuthenticated: authState.isAuthenticated
-      })
-      
-      // 清除localStorage中的所有认证相关数据
-      localStorage.removeItem('auth-storage')
-      localStorage.removeItem('supabase.auth.token')
-      localStorage.clear() // 清除所有本地存储，确保演示模式状态也被清除
-      
-      console.log('localStorage已清除')
-      
-      return { success: true }
+      await auth.signOut();
     } catch (error) {
-      console.error('signOut异常:', error)
-      // 即使出错也要清除本地状态
-      authState.user = null
-      authState.isAuthenticated = false
-      authState.isLoading = false
-      authState.error = null
-      localStorage.clear() // 清除所有本地存储
-      
-      return { success: true } // 返回成功，因为本地状态已清除
+      console.error('Supabase signOut error:', error);
     }
+
+    // Clear local state
+    authState.user = null;
+    authState.isAuthenticated = false;
+    authState.error = null;
+    authState.isLoading = false;
+
+    // Save the cleared state to localStorage
+    saveState();
+
+    // Also clear Supabase-specific items from localStorage
+    localStorage.removeItem('supabase.auth.token');
+
+    return { success: true };
   },
 
   // 检查认证状态

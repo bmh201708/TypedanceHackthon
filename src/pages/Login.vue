@@ -225,11 +225,7 @@ const demoLogin = async (userType) => {
 }
 
 // 检查是否已登录
-onMounted(async () => {
-  if (authStore.isAuthenticated) {
-    router.push('/')
-  }
-})
+
 </script>
 
 <style scoped>
